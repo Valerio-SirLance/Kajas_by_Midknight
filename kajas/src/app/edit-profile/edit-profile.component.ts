@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { LocationService } from '../../services/location.service';
+import { UserService } from '../../services/user.service';
 import { SessionStorageService } from 'angular-web-storage';
 import { Router } from '@angular/router';
 import axios from 'axios';
@@ -12,6 +13,7 @@ import axios from 'axios';
 })
 export class EditProfileComponent implements OnInit {
   profileForm: FormGroup;
+  existingUsernames: string[] = [];
   countries: any[] = [];
   cities: any[] = [];
   selectedCountryName = '';
@@ -36,6 +38,7 @@ export class EditProfileComponent implements OnInit {
   
   constructor(
     private fb: FormBuilder, 
+    private userService: UserService,
     private locationService: LocationService, 
     private sessionStorage: SessionStorageService, 
     private router: Router
@@ -98,13 +101,15 @@ export class EditProfileComponent implements OnInit {
       }],
       kajas_link: [this.sessionStorage.get('username'), {
         validators: [
-          Validators.required
+          Validators.required,
+          this.usernameValidator.bind(this)
         ]
       }],
     });
   }
 
   ngOnInit(): void {
+    this.loadUsernames();
     this.locationService.getCountries().subscribe(data => {
       this.countries = data;
       this.countries.sort((a, b) => a.name.localeCompare(b.name));
@@ -130,6 +135,28 @@ export class EditProfileComponent implements OnInit {
     };
   }
 
+  private loadUsernames(): void {
+    this.userService.getUsernames().subscribe({
+      next: (usernames: string[]) => {
+        this.existingUsernames = usernames;
+      },
+      error: (error: any) => {
+        console.error('Error fetching usernames:', error);
+      }
+    });    
+  }
+
+  private usernameValidator(control: AbstractControl): ValidationErrors | null {
+    const initialUsername = this.sessionStorage.get('username');
+    if (control.value === initialUsername) {
+      return null;
+    }
+    if (this.existingUsernames.includes(control.value)) {
+      return { usernameTaken: true };
+    }
+    return null;
+  }
+  
   socialMediaValidator(platform: string): (control: AbstractControl) => ValidationErrors | null {
     return (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) {
@@ -240,6 +267,8 @@ export class EditProfileComponent implements OnInit {
         return `${this.capitalizeFirstLetter(controlName)} must be a valid URL.`;
       } else if (control.errors.invalidSocialMediaUrl) {
         return `${this.capitalizeFirstLetter(controlName)} must be a valid ${controlName} URL.`;
+      } else if (control.errors.usernameTaken) {
+        return 'Username is already taken.';
       }
     }
     return '';

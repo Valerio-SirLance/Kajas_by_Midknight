@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { LocationService } from '../../services/location.service';
+import { UserService } from '../../services/user.service';
 import { SessionStorageService } from 'angular-web-storage';
 import { Router } from '@angular/router';
 import axios from 'axios';
@@ -12,6 +13,7 @@ import axios from 'axios';
 })
 export class SetupProfileComponent implements OnInit {
   profileForm: FormGroup;
+  existingUsernames: string[] = [];
   countries: any[] = [];
   cities: any[] = [];
   selectedCountryName = '';
@@ -28,6 +30,7 @@ export class SetupProfileComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
+    private userService: UserService,
     private locationService: LocationService,
     private sessionStorage: SessionStorageService,
     private router: Router
@@ -88,13 +91,15 @@ export class SetupProfileComponent implements OnInit {
       }],
       kajas_link: [this.sessionStorage.get('username'), {
         validators: [
-          Validators.required
+          Validators.required,
+          this.usernameValidator.bind(this)
         ]
       }],
     });
   }
 
   ngOnInit(): void {
+    this.loadUsernames();
     this.firstNamePlaceholder = this.sessionStorage.get('first_name') || '';
     this.lastNamePlaceholder = this.sessionStorage.get('last_name') || '';
     this.middleNamePlaceholder = this.sessionStorage.get('middle_name') || 'Middle Name';
@@ -129,6 +134,28 @@ export class SetupProfileComponent implements OnInit {
       };
       return patterns[platform].test(control.value) ? null : { invalidSocialMediaUrl: true };
     };
+  }
+
+  private loadUsernames(): void {
+    this.userService.getUsernames().subscribe({
+      next: (usernames: string[]) => {
+        this.existingUsernames = usernames;
+      },
+      error: (error: any) => {
+        console.error('Error fetching usernames:', error);
+      }
+    });    
+  }
+
+  private usernameValidator(control: AbstractControl): ValidationErrors | null {
+    const initialUsername = this.sessionStorage.get('username');
+    if (control.value === initialUsername) {
+      return null;
+    }
+    if (this.existingUsernames.includes(control.value)) {
+      return { usernameTaken: true };
+    }
+    return null;
   }
 
   onFileSelected(event: Event): void {
@@ -225,6 +252,8 @@ export class SetupProfileComponent implements OnInit {
         return `${this.capitalizeFirstLetter(controlName)} must be a valid URL.`;
       } else if (control.errors.invalidSocialMediaUrl) {
         return `${this.capitalizeFirstLetter(controlName)} must be a valid ${controlName} URL.`;
+      } else if (control.errors.usernameTaken) {
+        return 'Username is already taken.';
       }
     }
     return '';
