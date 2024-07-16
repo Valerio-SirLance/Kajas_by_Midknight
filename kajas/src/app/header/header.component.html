@@ -15,9 +15,12 @@
                     @for(result of searchResults; track result.id) {
                         <div class="search-result-item" 
                             (click)="navigateToProfile(result.username)">
-                            <img [src]="getAbsoluteUrl(result.profile) ||
-                                '../../assets/default-profile.png'" 
-                                alt="Profile Picture" />
+                            <img 
+                                [lazyLoad]="getAbsoluteUrl(result.profile)" 
+                                alt="Profile Picture"
+                                class="profile-picture" 
+                                [defaultImage]="'../../assets/default-profile.png'"
+                                [errorImage]="'../../assets/default-profile.png'" />
                             <span>{{ result.firstName }} 
                                 {{ result.lastName }}</span>
                         </div>
