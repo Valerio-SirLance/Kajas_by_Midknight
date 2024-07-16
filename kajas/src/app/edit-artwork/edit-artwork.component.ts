@@ -85,7 +85,7 @@ export class EditArtworkComponent implements OnInit {
   updatePlaceholders(): void {
     this.titlePlaceholder = this.artworkForm.get('title')?.value || '';
     this.dateCreatedPlaceholder = this.artworkForm.get('date')?.value || '';
-    this.descriptionPlaceholder = this.artworkForm.get('details')?.value || '';
+    this.descriptionPlaceholder = this.artworkForm.get('details')?.value || 'Add description for your piece...';
   }
 
   getAbsoluteUrl(relativePath: string): string {
@@ -108,7 +108,7 @@ export class EditArtworkComponent implements OnInit {
       const control = this.artworkForm.get(key);
       if (control) {
         if (key === 'details' && !control.value) {
-          updatedFields['description'] = 'Description from the artist not provided.';
+          updatedFields['description'] = control.value || '';
         } else if (control.value !== this.artwork[key]) {
           if (key === 'date') {
             updatedFields['date_created'] = control.value;

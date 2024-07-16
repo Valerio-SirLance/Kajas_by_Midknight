@@ -30,8 +30,8 @@
                   {{ artwork.last_name }}</p>
               <label for="date">Date Created: <span>{{ artwork.date_created |
                   date: 'MMMM dd, yyyy' }}</span></label>
-              <p class="description">{{ artwork.description }}</p>
-              
+              <p class="description">{{ artwork.description ||
+                 'Description from the artist not provided.' }}</p>
             </div>         
           </div>
         </div>
