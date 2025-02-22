@@ -7,6 +7,16 @@
 
   Welcome to **_Kajas_** (pronounced as “KAH-yahs”), an online platform dedicated as a central hub for _graphic designers_, _illustrators_, _photographers_, and other _visual artists_ to curate and manage their professional portfolios.
   
+  ## Demo Video 🎥
+  
+  See **Kajas by Midknight** in action! Click the image below to watch:
+  
+  <p align="center">
+    <a href="https://www.youtube.com/watch?v=VwWRGVoddRo">
+      <img src="https://img.youtube.com/vi/VwWRGVoddRo/maxresdefault.jpg" alt="Watch the demo" width="400">
+    </a>
+  </p>
+
   ## Webhost Details 🌐
 
   You may visit our app using the **_Sample User Credentials_** below:
@@ -31,7 +41,6 @@
       </td>
     </tr>
   </table>
-
 
   ## Team Members 👨‍💻
 
